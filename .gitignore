@@ -1,6 +1,8 @@
 tmp_git_repo/
+tmp_dir/
 __pycache__/
 *.py[cod]
 req*.txt
 .idea/
 *~
+Parser.log

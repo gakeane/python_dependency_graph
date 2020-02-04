@@ -9,6 +9,10 @@ import subprocess
 import os
 import shutil
 import shlex
+import logging
+
+log = logging.getLogger()
+
 
 class Local:
     """
@@ -21,7 +25,7 @@ class Local:
         """
 
     @staticmethod
-    def run_shell_cmd(cmd, stdin=None, working_dir=None, env_vars=None, check_result=True):
+    def run_shell_cmd(cmd, stdin=None, working_dir=None, env_vars=None, check_result=True, shell=False):
         """ Executes a shell command (command is executed as a subprocess of the current python script)
 
         The process is started when we call Popen.
@@ -32,6 +36,9 @@ class Local:
         working_dir  (string):  The directory the shell command will be executed in (None to use python ROOT directory)
         env_vars     (dict):    Any environment variables to be set in the shell context for the subprocess (None to use current environment)
         check_result (boolean): If True will throw a ValueError if the command fails
+        shell        (boolean): Setting the shell to true will run the command in the systems default shell (usually BASH on Linux and cmd.exe on windows).
+                                This is generally considered a security risk so should not be enabled if not required.
+                                It can be necessary to enable the shell for certain commands on windows as these commands don't have batch executables
         """
 
         cmd_list = shlex.split(cmd)
@@ -39,7 +46,7 @@ class Local:
         if stdin:
             stdin = stdin.encode('utf-8')
 
-        process = subprocess.Popen(cmd_list, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=working_dir, env=env_vars)
+        process = subprocess.Popen(cmd_list, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=working_dir, env=env_vars, shell=shell)
         stdout, stderr = process.communicate(input=stdin)
 
         if check_result and process.returncode != 0:

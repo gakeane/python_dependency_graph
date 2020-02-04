@@ -4,25 +4,36 @@
 
 import logging
 
-log = logging.getLogger(__name__)
+from logging.config import dictConfig
+
+LOGGING_CONFIG = dict(
+    version = 1,
+    formatters = {
+        'verbose': {'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'},
+        'simple': {'format': '%(levelname)s %(message)s'}
+    },
+
+    handlers = {
+        'console': {'class': 'logging.StreamHandler',
+                    'level': logging.INFO,
+                    'formatter': 'simple',},
+        'file': {'class':'logging.FileHandler',
+                 'level': logging.DEBUG,
+                 'formatter': 'verbose',
+                 'filename': 'Parser.log'}
+    },
+
+    root = {
+        'handlers': ['console', 'file'],
+        'level': logging.DEBUG,
+    },
+)
 
 
 def setup_logs(verbose=False):
     """ Setup logs for all modules """
 
     if verbose:
-        log.setLevel(logging.DEBUG)
+        LOGGING_CONFIG['handlers']['console']['level'] = logging.DEBUG
 
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.INFO)
-    stream_handler.setFormatter(formatter)
-    log.addHandler(stream_handler)
-
-    file_handler = logging.FileHandler(log_path + 'Parser.log')
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)
-    log.addHandler(file_handler)
-
-    return log
+    dictConfig(LOGGING_CONFIG)

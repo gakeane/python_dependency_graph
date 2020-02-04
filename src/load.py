@@ -3,8 +3,11 @@ This is a simple module for handling cloning repositories from github
 """
 
 import re
+import logging
 
 from local import Local
+
+log = logging.getLogger()
 
 
 class GitHub:
@@ -25,7 +28,7 @@ class GitHub:
         """
 
         Local.create_directory(local_repo)
-        Local.run_shell_cmd('git clone --depth 1 %s' % git_repo, working_dir=local_repo)
+        Local.run_shell_cmd('git clone --depth 1 %s' % git_repo, working_dir=local_repo, shell=True)
 
 
 class DirectoryParser:
