@@ -1,4 +1,8 @@
-""" Module parses a python file """
+""" Module parses a python file
+
+There is a good bit of work to go into this module to clean it up
+Should create Node and Edge Helper classes
+"""
 
 import ast
 import logging
@@ -6,14 +10,18 @@ import re
 
 log = logging.getLogger()
 
+
+# TODO: improving searching the AST to identify any calls made by dependencies
 class PythonFileParser:
     """
-
+    Uses AST (abstract syntax trees) to parse a list of python files and identify their imports
+    AST is used as it is faster than line by line parsing and we do not have to load the module
     """
 
     def __init__(self):
         """
-
+        Create structures to store moduels and imports
+        FIXME: These structures should be changed to store nodes and edges
         """
 
         self.all_modules = dict()
@@ -21,8 +29,9 @@ class PythonFileParser:
 
 
     def parse(self, python_files):
-        """
+        """ Creates an AST tree of each python files and searches it for imports
 
+        python_files (list): list of python files to be parsed
         """
 
         for module in python_files:
@@ -47,8 +56,9 @@ class PythonFileParser:
     ###############################
 
     def _create_module_list(self):
-        """
+        """ Based on all the indentified imports creates a list of modules in the package
 
+        FIXME: list of modules should be changed to list of Node objects
         """
 
         all_modules = dict()
@@ -61,9 +71,7 @@ class PythonFileParser:
 
 
 class Import():
-    """ Simple structure for holding module imports
-
-    """
+    """ Simple structure for holding module imports """
 
     def __init__(self, name, alias=None, path=None, package=None):
         """ initalises the datatypes for the Import structure
@@ -83,18 +91,19 @@ class Import():
 
 
 class Analyzer(ast.NodeVisitor):
-    """ Parses the information in the AST
-
-    """
+    """ Parses the information in the AST """
 
     def __init__(self, package_files):
-        """ imports: Stores all imports in the AST, what's imported, where from and any alias it has """
+        """ imports: Stores all imports in the AST, what's imported, where from and any alias it has
+
+        package_files (list): all the python files in the package
+        """
 
         self.imports = list()
         self.package_files = package_files
 
     def visit_Import(self, node):
-        """ Method called for all Import nodes in the AST graph """
+        """ Method called for all Import nodes in the AST graph (overwrites default method) """
 
         for alias in node.names:
 
@@ -106,7 +115,7 @@ class Analyzer(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node):
-        """ Method called for all ImportFrom nodes in the AST graph """
+        """ Method called for all ImportFrom nodes in the AST graph (overwrites default method)  """
 
         for alias in node.names:
 

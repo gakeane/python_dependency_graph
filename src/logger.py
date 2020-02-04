@@ -31,7 +31,10 @@ LOGGING_CONFIG = dict(
 
 
 def setup_logs(verbose=False):
-    """ Setup logs for all modules """
+    """ Setup logs for all modules
+
+    verbose (boolean): If True debug message will be displayed on the console
+    """
 
     if verbose:
         LOGGING_CONFIG['handlers']['console']['level'] = logging.DEBUG

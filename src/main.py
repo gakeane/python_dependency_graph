@@ -1,4 +1,5 @@
 """
+This is the entry point for the Python Dependency Graph Tool
 
 """
 
@@ -13,15 +14,11 @@ from parse import PythonFileParser
 from data import parse_user_input
 from logger import setup_logs
 
-from pprint import pprint as pp
-
 log = logging.getLogger()
 
 
 def main():
-    """
-
-    """
+    """ Tool is currently called only as a python script """
 
     try:
 
@@ -33,7 +30,7 @@ def main():
 
         # clone into a git repository if provided
         if perferences['repository']:
-            GitHub.clone(perferences['repository'], perferences['local_dir'])
+            GitHub.clone(perferences['repository'], perferences['local_dir'], shell=perferences['shell'])
 
         # locate all the python files in the repository
         files = DirectoryParser().get_python_files(perferences['local_dir'], perferences['ignore_list'])
@@ -41,16 +38,14 @@ def main():
         # run the python file parser to determine imports, modules and dependencies
         modules, imports = PythonFileParser().parse(files)
 
-        #pp(modules)
-        #pp(imports)
-
         graph = Graph()
         graph.build_graph(modules, imports)
-        graph.render_graph()
+        graph.render_graph(perferences['view'])
 
+    # FIXME: import the name of the tmp_repo
     finally:
-        # Local.delete_directory('tmp_git_repo')
-        pass
+        if perferences['clean']:
+            Local.delete_directory('tmp_git_repo')
 
 if __name__ == "__main__":
     main()

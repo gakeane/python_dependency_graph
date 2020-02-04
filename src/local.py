@@ -41,6 +41,8 @@ class Local:
                                 It can be necessary to enable the shell for certain commands on windows as these commands don't have batch executables
         """
 
+        log.debug("Running command [%s]", cmd)
+
         cmd_list = shlex.split(cmd)
 
         if stdin:
@@ -86,7 +88,9 @@ class Local:
                 raise IOError("Path [%s] already exists as a file" % path)
 
             os.makedirs(path)
+        log.debug("Created local directory %s", path)
 
+    # FIXME: the shutil.rmtree method doesn't work on Windows due to permission errors 
     @staticmethod
     def delete_directory(path):
         """ Deletes the specified directory, also deletes symbolic links
@@ -96,6 +100,7 @@ class Local:
 
         if Local.dir_exists(path):
             shutil.rmtree(path)
+        log.debug("Deleted local directory %s", path)
 
     @staticmethod
     def list_directory(path):
