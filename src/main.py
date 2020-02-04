@@ -4,13 +4,13 @@
 
 
 from local import Local
-
 from load import GitHub
 from load import DirectoryParser
-
-
-from data import parse_user_input
 from parse import PythonFileParser
+
+from logger import setup_logs
+from data import parse_user_input
+
 
 
 from pprint import pprint as pp
