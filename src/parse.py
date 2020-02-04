@@ -1,7 +1,9 @@
 """ Module parses a python file """
 
 import ast
+import logging
 
+log = logging.getLogger()
 
 class PythonFileParser:
     """

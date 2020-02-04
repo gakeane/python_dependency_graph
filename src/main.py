@@ -2,18 +2,20 @@
 
 """
 
+import logging
 
 from local import Local
-
 from load import GitHub
 from load import DirectoryParser
-
-
-from data import parse_user_input
 from parse import PythonFileParser
 
+from data import parse_user_input
+from logger import setup_logs
 
 from pprint import pprint as pp
+
+log = logging.getLogger()
+
 
 def main():
     """
@@ -24,6 +26,9 @@ def main():
 
         # parse the user input
         perferences = parse_user_input()
+
+        # initialise the logs
+        setup_logs(perferences['verbose'])
 
         # clone into a git repository if provided
         if perferences['repository']:
@@ -36,7 +41,7 @@ def main():
         parser = PythonFileParser()
         parser.parse(files)
 
-        pp(parser.all_imports)
+        # pp(parser.all_modules)
 
     finally:
         # Local.delete_directory('tmp_git_repo')
