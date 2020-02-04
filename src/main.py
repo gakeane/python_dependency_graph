@@ -37,11 +37,11 @@ def main():
         # locate all the python files in the repository
         files = DirectoryParser().get_python_files(perferences['local_dir'], perferences['ignore_list'])
 
-        # run the python file parser to determine imports
-        parser = PythonFileParser()
-        parser.parse(files)
+        # run the python file parser to determine imports, modules and dependencies
+        modules, imports = PythonFileParser().parse(files)
 
-        # pp(parser.all_modules)
+        pp(modules)
+        pp(imports)
 
     finally:
         # Local.delete_directory('tmp_git_repo')

@@ -81,7 +81,7 @@ class TestDependencyGraph(unittest.TestCase):
                 with open(os.path.join(LOCAL_DIR, 'subdir_2', txt_file), 'w') as f:
                     pass
 
-            python_file_paths = DirectoryParser().get_python_files(LOCAL_DIR + '2')
+            python_file_paths = DirectoryParser().get_python_files(LOCAL_DIR)
             python_files = [os.path.split(path)[1] for path in python_file_paths]
 
             self.assertEqual(python_files, PYTHON_FILES)

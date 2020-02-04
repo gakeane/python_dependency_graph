@@ -5,6 +5,8 @@ This is a simple module for handling cloning repositories from github
 import re
 import logging
 
+from pathlib import Path
+
 from local import Local
 
 log = logging.getLogger()
@@ -28,7 +30,7 @@ class GitHub:
         """
 
         Local.create_directory(local_repo)
-        Local.run_shell_cmd('git clone --depth 1 %s' % git_repo, working_dir=local_repo, shell=True)
+        Local.run_shell_cmd('git clone --depth 1 %s' % git_repo, working_dir=local_repo, shell=False)
 
 
 class DirectoryParser:
@@ -52,6 +54,10 @@ class DirectoryParser:
         This method resursivly moves through each of the sub directories and finds all files with the .py extension
 
         """
+
+        # TODO: This could be a quicker approch, will need to test further
+        # root_dir_path = Path(root_dir)
+        # return list(root_dir_path.glob('**/*.py'))
 
         # this will only be performed on the first call
         if ignore_list:

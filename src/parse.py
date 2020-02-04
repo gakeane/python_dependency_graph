@@ -2,6 +2,7 @@
 
 import ast
 import logging
+import re
 
 log = logging.getLogger()
 
@@ -15,7 +16,7 @@ class PythonFileParser:
 
         """
 
-        self.all_modules = dict()
+        self.all_modules = set()
         self.all_imports = dict()
 
 
@@ -24,20 +25,39 @@ class PythonFileParser:
 
         """
 
-        for file_id, python_file in enumerate(python_files):
+        for module in python_files:
 
-            with open(python_file, 'r') as src:
+            log.debug("PARSING MODULE: %s", module)
+
+            with open(module, 'r') as src:
                 root = ast.parse(src.read())
 
-            analyzer = Analyzer()
+            analyzer = Analyzer(python_files)
             analyzer.visit(root)
-
             imports = analyzer.get_imports()
 
-            self.all_modules[python_file] = file_id
-            self.all_imports[python_file] = imports
+            self.all_imports[module] = imports
 
-        return self.all_imports
+        self.all_modules = self._create_module_list()
+
+        return self.all_modules, self.all_imports
+
+    ###############################
+    # PRIVATE METHODS
+    ###############################
+
+    def _create_module_list(self):
+        """
+
+        """
+
+        all_modules = set()
+
+        for import_list in self.all_imports.values():
+            for import_obj in import_list:
+                all_modules.add(import_obj.import_path)
+
+        return all_modules
 
 
 class Import():
@@ -45,20 +65,21 @@ class Import():
 
     """
 
-    def __init__(self, name, alias=None, path=None):
+    def __init__(self, name, alias=None, path=None, package=None):
         """ initalises the datatypes for the Import structure
 
         import <name> as <alias>
-        from <path> import <name> as <alias>
+        from <package> import <name> as <alias>
         """
 
         self.import_name = name
         self.import_alias = alias
         self.import_path = path
+        self.import_package = package
 
     def __repr__(self):
         """ String representation of the object """
-        return "from %s import %s as %s)" % (self.import_path, self.import_name, self.import_alias)
+        return "from %s import %s local_module=[%s])" % (self.import_path, self.import_name, self.import_package)
 
 
 class Analyzer(ast.NodeVisitor):
@@ -66,16 +87,21 @@ class Analyzer(ast.NodeVisitor):
 
     """
 
-    def __init__(self):
+    def __init__(self, package_files):
         """ imports: Stores all imports in the AST, what's imported, where from and any alias it has """
 
         self.imports = list()
+        self.package_files = package_files
 
     def visit_Import(self, node):
         """ Method called for all Import nodes in the AST graph """
 
         for alias in node.names:
-            self.imports.append(Import(name=alias.name, alias=alias.asname))
+
+            import_path = alias.name.replace('.', '/') + '.py'
+            import_path, package = self._check_import_in_package(import_path)
+
+            self.imports.append(Import(name=alias.name, alias=alias.asname, path=import_path, package=package))
 
         self.generic_visit(node)
 
@@ -83,7 +109,14 @@ class Analyzer(ast.NodeVisitor):
         """ Method called for all ImportFrom nodes in the AST graph """
 
         for alias in node.names:
-            self.imports.append(Import(name=alias.name, alias=alias.asname, path=node.module))
+
+            # FIXME: If a relative import is used then node.module will be None, Will need to find a workaround for this
+            if node.module:
+
+                import_path = node.module.replace('.', '/') + '.py'
+                import_path, package = self._check_import_in_package(import_path)
+
+                self.imports.append(Import(name=alias.name, alias=alias.asname, path=import_path, package=package))
 
         self.generic_visit(node)
 
@@ -97,3 +130,21 @@ class Analyzer(ast.NodeVisitor):
         """ Returns all the imports in the AST for the python file """
 
         return self.imports
+
+    ###############################
+    # PRIVATE METHODS
+    ###############################
+
+    def _check_import_in_package(self, import_path):
+        """
+        Checks if the provided import path matches one of the package files
+        Otherwise returns false to indicate the dependency is not part
+
+        import_path (string): The path a module/package/class/function/expression is imported from
+        """
+
+        for file_path in self.package_files:
+            if re.match('.*' + import_path + '$', file_path):
+                return file_path, True
+
+        return import_path, False
