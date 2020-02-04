@@ -37,6 +37,8 @@ class PythonFileParser:
             self.all_modules[python_file] = file_id
             self.all_imports[python_file] = imports
 
+        return self.all_imports
+
 
 class Import():
     """ Simple structure for holding module imports
