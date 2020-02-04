@@ -16,7 +16,7 @@ class PythonFileParser:
 
         """
 
-        self.all_modules = set()
+        self.all_modules = dict()
         self.all_imports = dict()
 
 
@@ -51,11 +51,11 @@ class PythonFileParser:
 
         """
 
-        all_modules = set()
+        all_modules = dict()
 
         for import_list in self.all_imports.values():
             for import_obj in import_list:
-                all_modules.add(import_obj.import_path)
+                all_modules[import_obj.import_path] = import_obj.import_package
 
         return all_modules
 
@@ -145,6 +145,6 @@ class Analyzer(ast.NodeVisitor):
 
         for file_path in self.package_files:
             if re.match('.*' + import_path + '$', file_path):
-                return file_path, True
+                return file_path, 'package'
 
-        return import_path, False
+        return import_path, 'standard'

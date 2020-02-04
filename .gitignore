@@ -6,3 +6,5 @@ req*.txt
 .idea/
 *~
 Parser.log
+*.gv
+*.gv.*

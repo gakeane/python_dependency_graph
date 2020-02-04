@@ -6,6 +6,7 @@ import logging
 
 from local import Local
 from load import GitHub
+from graph import Graph
 from load import DirectoryParser
 from parse import PythonFileParser
 
@@ -40,8 +41,12 @@ def main():
         # run the python file parser to determine imports, modules and dependencies
         modules, imports = PythonFileParser().parse(files)
 
-        pp(modules)
-        pp(imports)
+        #pp(modules)
+        #pp(imports)
+
+        graph = Graph()
+        graph.build_graph(modules, imports)
+        graph.render_graph()
 
     finally:
         # Local.delete_directory('tmp_git_repo')
